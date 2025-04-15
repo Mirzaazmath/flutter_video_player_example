@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_video_player_example/video_player_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -13,30 +14,35 @@ class HomeScreen extends StatelessWidget {
           itemBuilder: (context,index){
           return Padding(
             padding: EdgeInsets.all(15),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height:70,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple,
-                    borderRadius: BorderRadius.circular(10)
+            child: GestureDetector(
+              onTap: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>VideoPlayerScreen()));
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height:70,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple,
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                    child: Icon(Icons.play_arrow,color: Colors.white,),
                   ),
-                  child: Icon(Icons.play_arrow,color: Colors.white,),
-                ),
-                SizedBox(width: 20,),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Video Title ${index+1}",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-                      Text("Video SubTitle ${index+1}",style: TextStyle(fontSize: 16,),)
-                    ],
+                  SizedBox(width: 20,),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Video Title ${index+1}",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                        Text("Video SubTitle ${index+1}",style: TextStyle(fontSize: 16,),)
+                      ],
+                    ),
                   ),
-                ),
-                Icon(Icons.more_vert)
-              ],
+                  Icon(Icons.more_vert)
+                ],
+              ),
             ),
           );
 

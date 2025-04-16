@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -12,7 +10,9 @@ class VideoPlayerScreen extends StatefulWidget {
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  // Here we have created a _videoPlayerController to controller our video
   late VideoPlayerController _videoPlayerController;
+  // Here We have created PlaybackRates list to controller the speed of the video
   static const List<double> _examplePlaybackRates = <double>[
     0.25,
     0.5,
@@ -23,13 +23,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     5.0,
     10.0,
   ];
+  // Here we have created a variable of type bool to handle  FullScreen mode
   bool isFullScreen = false;
+  // Here we have created a variable of type bool to handle  Forward effect
   bool _showDoubleTapIconForward = false;
+  // Here we have created a variable of type bool to handle  Backward effect
   bool _showDoubleTapIconBackward = false;
 
   @override
   void initState() {
     super.initState();
+    // Here we are Initializing the VideoPlayerController of networkUrl with video url
     _videoPlayerController = VideoPlayerController.networkUrl(
         Uri.parse(
           'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -43,7 +47,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   void dispose() {
+    // Here we are disposing the _videoPlayerController to prevent memory leak
     _videoPlayerController.dispose();
+    // here we are setting the screen orientation to portrait while closing the videoPlayer screen
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -52,7 +58,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.dispose();
   }
 
+  // Here we have created a method to change the Orientation of video player screen
   void setOrientation() {
+    // if the video player is in FullScreen we simple setting the Orientation to portrait mode
     if (isFullScreen) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations([
@@ -60,12 +68,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         DeviceOrientation.portraitDown,
       ]);
     } else {
+      // if not  we simple setting the Orientation to landscape mode
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
     }
+    // Here we are changing the  isFullScreen value
     setState(() {
       isFullScreen = !isFullScreen;
     });
@@ -74,21 +84,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // based on FullScreen mode we are hiding the appbar to better user experience
       appBar: isFullScreen ? null : AppBar(title: Text("Video Player")),
       body: Column(
         children: [
+          // Here we are checking weather the _videoPlayerController Initialized or not, if not then we are showing the loader
           _videoPlayerController.value.isInitialized
+              // here we are wrapping the videoPlayer with Stack to arrange controller over the videoPlayer
               ? Stack(
                 alignment: Alignment.bottomCenter,
                 children: [
                   SizedBox(
+                    // here we are changing the height based on FullScreen mode
                     height:
                         isFullScreen
                             ? MediaQuery.sizeOf(context).height
                             : MediaQuery.sizeOf(context).height * 0.3,
                     width: double.infinity,
+                    // Here is the VideoPlayer which will display to user
                     child: VideoPlayer(_videoPlayerController),
                   ),
+                  // here we have create two transparent controller to skip and rewind the video duration by 10 seconds
                   Row(
                     children: [
                       Expanded(
@@ -122,7 +138,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                     ? MediaQuery.sizeOf(context).height
                                     : MediaQuery.sizeOf(context).height * 0.3,
                             decoration: BoxDecoration(
-                              // color:_showDoubleTapIconBackward? Colors.black38:Colors.transparent,
                               gradient: LinearGradient(
                                 colors:
                                     _showDoubleTapIconBackward
@@ -174,7 +189,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             setState(() => _showDoubleTapIconForward = false);
                           },
                           child: Container(
-
                             height:
                                 isFullScreen
                                     ? MediaQuery.sizeOf(context).height
@@ -209,6 +223,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       ),
                     ],
                   ),
+                  // here we are showing back arrow in fullscreen mode to pop
                   isFullScreen
                       ? Positioned(
                         left: 0,
@@ -227,6 +242,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         ),
                       )
                       : SizedBox(),
+
                   Padding(
                     padding:
                         isFullScreen
@@ -237,13 +253,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             : EdgeInsets.zero,
                     child: Column(
                       children: [
-                        VideoProgressIndicator(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          _videoPlayerController,
-                          allowScrubbing: true,
+                        // VideoProgressIndicator
+                        SizedBox(
+                          height: 10,
+                          child: VideoProgressIndicator(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            _videoPlayerController,
+                            allowScrubbing: true,
+                          ),
                         ),
                         Row(
                           children: [
+                            // pause and play button
                             Expanded(
                               child: Align(
                                 alignment: Alignment.centerLeft,
@@ -265,6 +286,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 ),
                               ),
                             ),
+                            // Video Speed mode dropdown
                             PopupMenuButton<double>(
                               initialValue:
                                   _videoPlayerController.value.playbackSpeed,
@@ -301,6 +323,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 ),
                               ),
                             ),
+                            // FullScreen mode button
                             IconButton(
                               onPressed: () {
                                 setOrientation();
@@ -318,16 +341,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   ),
                 ],
               )
-              :Container(
-            color: Colors.black,
-            height: MediaQuery.sizeOf(context).height * 0.3,
-            alignment: Alignment.center,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-            ),
-
-
-          )
+              // Loader
+              : Container(
+                color: Colors.black,
+                height: MediaQuery.sizeOf(context).height * 0.3,
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
         ],
       ),
     );

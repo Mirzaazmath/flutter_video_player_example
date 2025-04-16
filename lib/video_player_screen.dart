@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -46,6 +48,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
 
   void setOreintation(){
+
     if(isFullScreen){
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations([
@@ -60,12 +63,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         DeviceOrientation.landscapeRight,
       ]);
     }
+    setState(() {
+      isFullScreen = !isFullScreen;
+    });
 
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar:isFullScreen?null: AppBar(
         title: Text("Video Player"),
       ),
       body: Column(
@@ -74,68 +80,79 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              AspectRatio(
-                aspectRatio: _videoPlayerController.value.aspectRatio,
+              SizedBox(
+                height:isFullScreen? MediaQuery.sizeOf(context).height: MediaQuery.sizeOf(context).height*0.3,
+                width: double.infinity,
                 child: VideoPlayer(
                     _videoPlayerController,
                 ),
               ),
-              Column(
-                children: [
-                  VideoProgressIndicator(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      _videoPlayerController, allowScrubbing: true),
-                  Row(
-
-                    children: [
-                      Expanded(
-                        child:
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: IconButton(onPressed: (){
-                           setState(() {
-                             _videoPlayerController.value.isPlaying
-                                 ? _videoPlayerController.pause()
-                                 : _videoPlayerController.play();
-                           });
-                          }, icon: Icon( _videoPlayerController.value.isPlaying? Icons.pause:Icons.play_arrow,color: Colors.white,size: 30,)),
-                        ),
-                      ),
-                      PopupMenuButton<double>(
-                        initialValue: _videoPlayerController.value.playbackSpeed,
-                        tooltip: 'Playback speed',
-                        onSelected: (double speed) {
-                         setState(() {
-                           _videoPlayerController.setPlaybackSpeed(speed);
-                         });
-                        },
-                        itemBuilder: (BuildContext context) {
-                          return <PopupMenuItem<double>>[
-                            for (final double speed in _examplePlaybackRates)
-                              PopupMenuItem<double>(
-                                value: speed,
-                                child: Text('${speed}x'),
-                              )
-                          ];
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-
-                            vertical: 12,
-                            horizontal: 16,
+              isFullScreen? Positioned(
+                left: 0,
+                top: 0,
+                child: SafeArea(
+                  child: IconButton(onPressed: (){
+                    Navigator.pop(context);
+                  }, icon: Icon(Icons.arrow_back,color: Colors.white,size: 30,)),
+                ),
+              ):SizedBox(),
+              Padding(
+                padding:isFullScreen? const EdgeInsets.symmetric(horizontal: 20,vertical: 10):EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    VideoProgressIndicator(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        _videoPlayerController, allowScrubbing: true),
+                    Row(
+                      children: [
+                        Expanded(
+                          child:
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: IconButton(onPressed: (){
+                             setState(() {
+                               _videoPlayerController.value.isPlaying
+                                   ? _videoPlayerController.pause()
+                                   : _videoPlayerController.play();
+                             });
+                            }, icon: Icon( _videoPlayerController.value.isPlaying? Icons.pause:Icons.play_arrow,color: Colors.white,size: 30,)),
                           ),
-                          child: Text('${_videoPlayerController.value.playbackSpeed}x',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),
                         ),
-                      ),
-                      IconButton(onPressed: (){
-                        setState(() {
-                          setOreintation();
-                        });
-                      }, icon: Icon(Icons.fullscreen,color: Colors.white,size: 30,))
+                        PopupMenuButton<double>(
+                          initialValue: _videoPlayerController.value.playbackSpeed,
+                          tooltip: 'Playback speed',
+                          onSelected: (double speed) {
+                           setState(() {
+                             _videoPlayerController.setPlaybackSpeed(speed);
+                           });
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return <PopupMenuItem<double>>[
+                              for (final double speed in _examplePlaybackRates)
+                                PopupMenuItem<double>(
+                                  value: speed,
+                                  child: Text('${speed}x'),
+                                )
+                            ];
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
 
-                    ],
-                  )
-                ],
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
+                            child: Text('${_videoPlayerController.value.playbackSpeed}x',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),
+                          ),
+                        ),
+                        IconButton(onPressed: (){
+                          setOreintation();
+                        }, icon: Icon(Icons.fullscreen,color: Colors.white,size: 30,))
+
+                      ],
+                    ),
+
+                  ],
+                ),
               )
             ],
           )
@@ -148,3 +165,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 }
 
+class Constants {
+  static FlutterView view =
+      WidgetsBinding.instance.platformDispatcher.views.first;
+  static Size size = view.physicalSize / view.devicePixelRatio;
+
+  // If on the web, force physical size to 500
+  static double screenWidth =  size.width;
+  static double screenHeight = size.height;
+
+  // Set max width for web view
+}

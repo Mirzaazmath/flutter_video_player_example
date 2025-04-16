@@ -25,7 +25,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   ];
   bool isFullScreen = false;
   bool _showDoubleTapIconForward = false;
-  bool _showDoubleTapIconBackward = true;
+  bool _showDoubleTapIconBackward = false;
 
   @override
   void initState() {
@@ -318,7 +318,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   ),
                 ],
               )
-              : Center(child: CircularProgressIndicator()),
+              :Container(
+            color: Colors.black,
+            height: MediaQuery.sizeOf(context).height * 0.3,
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
+
+
+          )
         ],
       ),
     );

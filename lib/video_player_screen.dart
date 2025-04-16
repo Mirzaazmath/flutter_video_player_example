@@ -24,6 +24,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     10.0,
   ];
   bool isFullScreen = false;
+  bool _showDoubleTapIconForward = false;
+  bool _showDoubleTapIconBackward = true;
 
   @override
   void initState() {
@@ -90,13 +92,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child:
-                        InkWell(
-                          onDoubleTap: ()async{
-                            final currentPosition = await _videoPlayerController.position;
+                        child: InkWell(
+                          onDoubleTap: () async {
+                            final currentPosition =
+                                await _videoPlayerController.position;
                             if (currentPosition != null) {
-                              final newPosition = currentPosition - const Duration(seconds: 10);
-                              final duration = _videoPlayerController.value.duration;
+                              final newPosition =
+                                  currentPosition - const Duration(seconds: 10);
+                              final duration =
+                                  _videoPlayerController.value.duration;
 
                               // Make sure it doesn't go beyond the total video length
                               if (newPosition < duration) {
@@ -105,23 +109,55 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 _videoPlayerController.seekTo(duration);
                               }
                             }
-
+                            // Show splash icon
+                            setState(() => _showDoubleTapIconBackward = true);
+                            await Future.delayed(
+                              const Duration(milliseconds: 500),
+                            );
+                            setState(() => _showDoubleTapIconBackward = false);
                           },
-                          child: SizedBox(
-                            height: isFullScreen
-                                ? MediaQuery.sizeOf(context).height
-                                : MediaQuery.sizeOf(context).height * 0.3,
-
+                          child: Container(
+                            height:
+                                isFullScreen
+                                    ? MediaQuery.sizeOf(context).height
+                                    : MediaQuery.sizeOf(context).height * 0.3,
+                            decoration: BoxDecoration(
+                              // color:_showDoubleTapIconBackward? Colors.black38:Colors.transparent,
+                              gradient: LinearGradient(
+                                colors:
+                                    _showDoubleTapIconBackward
+                                        ? [
+                                          Colors.black54,
+                                          Colors.black38,
+                                          Colors.transparent,
+                                        ]
+                                        : [
+                                          Colors.transparent,
+                                          Colors.transparent,
+                                        ],
+                              ),
+                            ),
+                            child:
+                                _showDoubleTapIconBackward
+                                    ? Icon(
+                                      Icons.fast_rewind,
+                                      color: Colors.white,
+                                      size: 40,
+                                    )
+                                    : SizedBox(),
                           ),
                         ),
                       ),
                       Expanded(
                         child: InkWell(
-                          onDoubleTap: ()async{
-                            final currentPosition = await _videoPlayerController.position;
+                          onDoubleTap: () async {
+                            final currentPosition =
+                                await _videoPlayerController.position;
                             if (currentPosition != null) {
-                              final newPosition = currentPosition + const Duration(seconds: 10);
-                              final duration = _videoPlayerController.value.duration;
+                              final newPosition =
+                                  currentPosition + const Duration(seconds: 10);
+                              final duration =
+                                  _videoPlayerController.value.duration;
 
                               // Make sure it doesn't go beyond the total video length
                               if (newPosition < duration) {
@@ -130,17 +166,47 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 _videoPlayerController.seekTo(duration);
                               }
                             }
-
-
+                            // Show splash icon
+                            setState(() => _showDoubleTapIconForward = true);
+                            await Future.delayed(
+                              const Duration(milliseconds: 500),
+                            );
+                            setState(() => _showDoubleTapIconForward = false);
                           },
-                          child: SizedBox(
-                            height: isFullScreen
-                                ? MediaQuery.sizeOf(context).height
-                                : MediaQuery.sizeOf(context).height * 0.3,
+                          child: Container(
 
+                            height:
+                                isFullScreen
+                                    ? MediaQuery.sizeOf(context).height
+                                    : MediaQuery.sizeOf(context).height * 0.3,
+                            decoration: BoxDecoration(
+                              // color:_showDoubleTapIconForward? Colors.black38:Colors.transparent,
+                              gradient: LinearGradient(
+                                colors:
+                                    _showDoubleTapIconForward
+                                        ? [
+                                          Colors.transparent,
+
+                                          Colors.black38,
+                                          Colors.black54,
+                                        ]
+                                        : [
+                                          Colors.transparent,
+                                          Colors.transparent,
+                                        ],
+                              ),
+                            ),
+                            child:
+                                _showDoubleTapIconForward
+                                    ? Icon(
+                                      Icons.fast_forward,
+                                      color: Colors.white,
+                                      size: 40,
+                                    )
+                                    : SizedBox(),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                   isFullScreen
@@ -257,16 +323,4 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       ),
     );
   }
-}
-
-class Constants {
-  static FlutterView view =
-      WidgetsBinding.instance.platformDispatcher.views.first;
-  static Size size = view.physicalSize / view.devicePixelRatio;
-
-  // If on the web, force physical size to 500
-  static double screenWidth = size.width;
-  static double screenHeight = size.height;
-
-  // Set max width for web view
 }
